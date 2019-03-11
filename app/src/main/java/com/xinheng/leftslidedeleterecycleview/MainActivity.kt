@@ -12,8 +12,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        //recycleView.layoutManager = GridLayoutManager(this,3)
         recycleView.layoutManager = LinearLayoutManager(this)
+        //recycleView.layoutManager = GridLayoutManager(this,3)
         recycleView.addItemDecoration(
             SpaceItemDecoration(
                 this,

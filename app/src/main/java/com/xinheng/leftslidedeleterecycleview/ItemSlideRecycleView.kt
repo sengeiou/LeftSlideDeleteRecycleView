@@ -2,6 +2,7 @@ package com.xinheng.leftslidedeleterecycleview
 
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Rect
 import android.support.v7.widget.RecyclerView
@@ -19,7 +20,6 @@ class ItemSlideRecycleView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : RecyclerView(context, attrs, defStyleAttr) {
     private val TAG = javaClass.simpleName
-    var showMenuView: WithHandSlideViewGroup? = null
     private var lastX = 0f
     private var lastY = 0f
     /**
@@ -168,7 +168,7 @@ class ItemSlideRecycleView @JvmOverloads constructor(
     private fun closeNowMenu(x: Int, y: Int) {
         if (null != mMenuView && mMenuShowAllTag) {
             if (!isNowMenu(x, y)) {
-                closeMenu(mMenuView!!)
+                closeMenu(getRealMenuView(mMenuView!!))
                 //mMenuShowAllTag = false
                 slideEffiectiveTag = false
             }
@@ -180,6 +180,7 @@ class ItemSlideRecycleView @JvmOverloads constructor(
         if (isNowMenu(x, y)) {
             return
         }
+        mMenuView = null
         val frame = mTouchFrame
         for (i in childCount - 1 downTo 0) {
             val child = getChildAt(i)
@@ -190,9 +191,24 @@ class ItemSlideRecycleView @JvmOverloads constructor(
                 child.getHitRect(frame)
                 if (frame.contains(x, y)) {
                     //当前触碰的view
-                    mMenuView = child as ViewGroup
+                    if (child is ViewGroup) {
+                        mMenuView = child
+                    }
                 }
             }
+        }
+        //Log.e("TAG", "findMotionView: mMenuView is empty = ${mMenuView == null} ")
+    }
+
+    /**
+     * 获取可滑动，且包含菜单的view
+     * @param view item
+     */
+    private fun getRealMenuView(view: View): ViewGroup {
+        return if (onItemSlideRecycleListener != null) {
+            onItemSlideRecycleListener!!.getRealCanSlideMenuView(view)
+        } else {
+            view as ViewGroup
         }
     }
 
@@ -214,16 +230,25 @@ class ItemSlideRecycleView @JvmOverloads constructor(
      */
     private fun moveToMenuView(slide: Int) {
         mMenuView?.let {
-            mMenuWidth = it.getChildAt(1).measuredWidth
+            val view = getRealSlideView(it)
+            mMenuWidth = view.getChildAt(1).measuredWidth
             Log.e("TAG", "moveToMenuView: mMenuWidth=$mMenuWidth")
-            if (it.scrollX + slide >= mMenuWidth) {
-                //showMenu(it)
-                it.scrollTo(mMenuWidth, 0)
+            if (view.scrollX + slide >= mMenuWidth) {
+                //showMenu(view)
+                view.scrollTo(mMenuWidth, 0)
                 mMenuShowAllTag = true
             } else {
                 mMenuShowAllTag = false
-                it.scrollBy(slide, 0)
+                view.scrollBy(slide, 0)
             }
+        }
+    }
+
+    private fun getRealSlideView(view: ViewGroup): ViewGroup {
+        return if (null != onItemSlideRecycleListener) {
+            onItemSlideRecycleListener!!.getRealCanSlideMenuView(view)
+        } else {
+            view
         }
     }
 
@@ -232,7 +257,8 @@ class ItemSlideRecycleView @JvmOverloads constructor(
      * 即决定菜单是否展开或关闭
      */
     private fun upFinalMoveToMenuView() {
-        mMenuView?.let {
+        mMenuView?.let { view ->
+            val it = getRealSlideView(view)
             if (it.scrollX >= mMenuWidth / 2f || checkEffectiveSpeed()) {
                 showMenu(it)
             } else {
@@ -263,7 +289,8 @@ class ItemSlideRecycleView @JvmOverloads constructor(
     }
 
     fun closeMenu() {
-        mMenuView?.let {
+        mMenuView?.let { view ->
+            val it = getRealSlideView(view)
             closeMenu(it)
         }
     }
@@ -331,5 +358,15 @@ class ItemSlideRecycleView @JvmOverloads constructor(
         openAnimator.target = view
         openAnimator.setIntValues(start, end)
         openAnimator.start()
+    }
+
+    var onItemSlideRecycleListener: OnItemSlideRecycleListener? = null
+
+    interface OnItemSlideRecycleListener {
+        /**
+         * 获取真正可滑动view
+         * @param view recycleview列表的item
+         */
+        fun getRealCanSlideMenuView(view: View): ViewGroup
     }
 }

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                  android:orientation="horizontal">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                      android:orientation="horizontal">
+            <View android:layout_width="0dp" android:layout_height="10dp" android:layout_weight="1"/>
+            <View android:layout_width="1dp" android:layout_height="30dp" android:background="@color/gray"/>
+            <TextView android:layout_width="80dp" android:layout_height="30dp" android:text="编辑"
+                      android:gravity="center"/>
+            <View android:layout_width="1dp" android:layout_height="30dp" android:background="@color/gray"/>
+            <TextView android:layout_width="80dp" android:layout_height="30dp" android:text="预览"
+                      android:gravity="center"/>
+        </LinearLayout>
+        <TextView android:layout_width="60dp" android:layout_height="30dp" android:text="删除" android:gravity="center"
+                  android:textColor="#fff" android:background="@color/colorAccent"/>
+    </LinearLayout>
+    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/gray"/>
+    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
+              android:padding="10dp" android:text="         这样比较了一下，第一种方法比较简单。仅需要添加可滑动标志就行，或者item为一个的时候不响应滑动。"/>
+    <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/gray"/>
+</LinearLayout>
